@@ -151,7 +151,7 @@ document.addEventListener('keydown', async () => {
     function firstLine(context, itemsLeft) {
         var result = [];
 
-        while(itemsLeft > 0) {
+        for(var i = itemsLeft; i > 0; i--) {
             var note = diff(context);
             while(Tonal.distance(note, 'E5')[0] === '-') {// || isNaN(+Tonal.distance(note, 'F4')[0])) { // _ or is smaller than E4 (has positive number as first char) // risky
                 note = diff(context);
@@ -169,7 +169,7 @@ document.addEventListener('keydown', async () => {
         'A4', 'E5', ...firstLine('E5', 2), 
         'D5', ...firstLine('D5', 3), 
         'A4', ...firstLine('A4', 3), 
-        'D5', ...firstLine('D5', 3)
+        'D5', ...firstLine('D5', 3),
     ];
 
     console.log(melody);
@@ -182,6 +182,7 @@ document.addEventListener('keydown', async () => {
     seq.humanize = true;
 
     // Tone.Transport.start();
+    Tone.Transport.bpm.value = 120;
 	Tone.Transport.start(0);
 
     // console.log(Tonal.distance('F5', 'E4'))
