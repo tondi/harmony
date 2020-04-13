@@ -87,8 +87,6 @@ document.addEventListener('keydown', async () => {
     var scale = Tonal.Scale.get("c5 major").notes;
     var scalePerfect = ['A3', 'G3', 'F3', 'A4', 'G4', 'F4'];
 
-    var nextNoteFull = false;
-    //create a looped note event every half-note
     var note = new Tone.Event(function(time, pitch){
         // console.log(time, pitch);
 
@@ -114,7 +112,8 @@ document.addEventListener('keydown', async () => {
     // note.probability = 0.5;
 
     //start the note at the beginning of the Transport timeline
-    note.start(0);
+    // uncomment
+    // note.start(0);
 
     //stop the note on the 4th measure
     // note.stop("4m");
@@ -126,11 +125,66 @@ document.addEventListener('keydown', async () => {
     // }, scale, 'up');
     // pattern.start(0);
 
+    function diff(context) {
+        var cMajor = Tonal.Scale.get("C major").notes;
+        // return context.transpose
+        var transposeUp = !!Math.round(Math.random());
+
+        var index = cMajor.indexOf(context[0]);
+        var number = context[1];
+
+        if(transposeUp) {
+            if(index === cMajor.length - 1) { // note last in scale case
+                number = number + 1;
+            }
+            return cMajor[(index + 1) % cMajor.length] + number;
+        } else {
+            if(index === 0) { // note first in scale
+                index = cMajor.length;
+                number = number - 1;
+            }
+            return cMajor[(index - 1)] + number;
+        }
+
+    }
+
+    function firstLine(context, itemsLeft) {
+        var result = [];
+
+        while(itemsLeft > 0) {
+            var note = diff(context);
+            while(Tonal.distance(note, 'E5')[0] === '-') {// || isNaN(+Tonal.distance(note, 'F4')[0])) { // _ or is smaller than E4 (has positive number as first char) // risky
+                note = diff(context);
+            }
+            result.push(note);
+            context = note;
+
+            itemsLeft--;
+        }
+
+        return result;
+    }
+
+    var melody = [
+        'A4', 'E5', ...firstLine('E5', 2), 
+        'D5', ...firstLine('D5', 3), 
+        'A4', ...firstLine('A4', 3), 
+        'D5', ...firstLine('D5', 3)
+    ];
+
+    console.log(melody);
+
+    var seq = new Tone.Sequence(function(time, note){
+        console.log(note);
+        piano.triggerAttackRelease(note, "16n", time);
+    }, melody);
+    seq.start(0)
+    seq.humanize = true;
 
     // Tone.Transport.start();
 	Tone.Transport.start(0);
 
-    console.log(Tone.Transport)
+    // console.log(Tonal.distance('F5', 'E4'))
 
     // const synth = new Tone.Synth().toMaster();    // synth.triggerAttackRelease("C4", "8n");
     // const synth = new Tone.Synth().toDestination();
@@ -142,4 +196,5 @@ document.addEventListener('keydown', async () => {
     // loop.start("1m").stop("4m");
 
     // Tone.Transport.start();
+
 })
