@@ -1,0 +1,23 @@
+{
+  "name": "harmony",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@tonaljs/tonal": "^3.6.0",
+    "browser-sync": "^2.26.7",
+    "lite-server": "^2.5.4",
+    "tone": "^13.8.25"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.1.1",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "scripts": {
+    "dev": "webpack-dev-server --config webpack.config.js --open"
+  },
+  "author": "",
+  "license": "ISC"
+}
