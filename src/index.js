@@ -1,6 +1,9 @@
 import * as Tonal from "@tonaljs/tonal";
 import * as Tone from "tone";
 
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
 
 // console.log(Tonal.Key.minorKey("Ab"));
 // console.log(';yo')
@@ -41,7 +44,12 @@ var piano = new Tone.Sampler({
     "baseUrl" : "audio/"
 }).toMaster();
 
+var started = false;
+
 document.addEventListener('keydown', async () => {
+    if (started) return;
+    started = true;
+
     await Tone.start()
     console.log('audio is ready')
 
@@ -59,23 +67,70 @@ document.addEventListener('keydown', async () => {
     //     piano.triggerAttack("D4", "8n", time);
     // }, "4n", '1m');
 
-    var chord = Tonal.Chord.get("C");
-    console.log(chord);
-    var chordPattern = new Tone.Pattern(function(time, note){
-        chord.notes.forEach(note => {
-            piano.triggerAttackRelease(note + "3", 0.25);
-        })
-    }, scale, 'up');
-    chordPattern.start(0).stop(3);
-    
+    var chordOneNotes = Tonal.Chord.get("Am").notes.map(note => note + "3");
+    var chordTwoNotes = Tonal.Chord.get("G").notes.map(note => note + "3");
+    var chordThreeNotes = Tonal.Chord.get("F").notes.map(note => note + "3");
+    var myChords = [['0', chordOneNotes], ['1m', chordTwoNotes], ['2m', chordThreeNotes], ['3m', chordTwoNotes]];
+
+    console.log*(myChords);
+
+    var chordPart = new Tone.Part(function(time, chord){
+		piano.triggerAttackRelease(chord, "2n", time);
+	}, myChords ).start(0);
+
+	chordPart.loop = true;
+	chordPart.loopStart = "0:0";
+	chordPart.loopEnd = "4:0";
+
+
+
     var scale = Tonal.Scale.get("c5 major").notes;
-    var pattern = new Tone.Pattern(function(time, note){
-        piano.triggerAttackRelease(note, 0.25);
-    }, scale, 'up');
-    pattern.start(0);
+    var scalePerfect = ['A3', 'G3', 'F3', 'A4', 'G4', 'F4'];
+
+    var nextNoteFull = false;
+    //create a looped note event every half-note
+    var note = new Tone.Event(function(time, pitch){
+        // console.log(time, pitch);
+
+        var x = Math.round(time*2)/2;
+        console.log(x);
+
+        var strategy = scale;
+
+        if(x % 1  === 0) {
+            strategy = scalePerfect;
+        }
+
+        var index = Math.round(Math.random() * (strategy.length - 1))
+        var note = strategy[index];
+        piano.triggerAttackRelease(note, "16n", time);
+    });
+
+    //set the note to loop every half measure
+    note.set({
+        "loop" : true,
+        "loopEnd" : "4n"
+    });
+    // note.probability = 0.5;
+
+    //start the note at the beginning of the Transport timeline
+    note.start(0);
+
+    //stop the note on the 4th measure
+    // note.stop("4m");
+
+    // var scale = shuffle(Tonal.Scale.get("c5 major").notes);
+    // // console.log(scale, shuffle(scale))
+    // var pattern = new Tone.Pattern(function(time, note){
+    //     piano.triggerAttackRelease(note, 0.25);
+    // }, scale, 'up');
+    // pattern.start(0);
 
 
-    Tone.Transport.start();
+    // Tone.Transport.start();
+	Tone.Transport.start(0);
+
+    console.log(Tone.Transport)
 
     // const synth = new Tone.Synth().toMaster();    // synth.triggerAttackRelease("C4", "8n");
     // const synth = new Tone.Synth().toDestination();
