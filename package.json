@@ -16,7 +16,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "dev": "webpack-dev-server --config webpack.config.js --open"
+    "start": "webpack-dev-server --config webpack.config.js --open"
   },
   "author": "",
   "license": "ISC"
